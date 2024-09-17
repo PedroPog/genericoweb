@@ -1,7 +1,6 @@
 export const environment = {
   production: false,
   firebase: {
-    apiKey: "AIzaSyCVHOUPSnheVyeszwnHBN5MFAOyFu3N6AY",
     authDomain: "genericwebfire.firebaseapp.com",
     projectId: "genericwebfire",
     storageBucket: "genericwebfire.appspot.com",
