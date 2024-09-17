@@ -1,0 +1,14 @@
+{
+  "targets": {
+    "genericwebfire": {
+      "hosting": {
+        "genericoweb": [
+          "genericwebfire"
+        ]
+      }
+    }
+  },
+  "projects": {
+    "default": "genericwebfire"
+  }
+}

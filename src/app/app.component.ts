@@ -1,36 +1,54 @@
-import { Component } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { ApplicationRef, Component, effect, Inject } from '@angular/core';
+import { CommonModule, DOCUMENT } from '@angular/common';
 import { RouterOutlet } from '@angular/router';
+import { SwithThemeService } from './core/services/utility/swith-theme.service';
 
 @Component({
   selector: 'app-root',
   standalone: true,
   imports: [CommonModule, RouterOutlet],
-  template: `
-    <!--The content below is only a placeholder and can be replaced.-->
-    <div style="text-align:center" class="content">
-      <h1>
-        Welcome to {{title}}!
-      </h1>
-      <span style="display: block">{{ title }} app is running!</span>
-      <img width="300" alt="Angular Logo" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNTAgMjUwIj4KICAgIDxwYXRoIGZpbGw9IiNERDAwMzEiIGQ9Ik0xMjUgMzBMMzEuOSA2My4ybDE0LjIgMTIzLjFMMTI1IDIzMGw3OC45LTQzLjcgMTQuMi0xMjMuMXoiIC8+CiAgICA8cGF0aCBmaWxsPSIjQzMwMDJGIiBkPSJNMTI1IDMwdjIyLjItLjFWMjMwbDc4LjktNDMuNyAxNC4yLTEyMy4xTDEyNSAzMHoiIC8+CiAgICA8cGF0aCAgZmlsbD0iI0ZGRkZGRiIgZD0iTTEyNSA1Mi4xTDY2LjggMTgyLjZoMjEuN2wxMS43LTI5LjJoNDkuNGwxMS43IDI5LjJIMTgzTDEyNSA1Mi4xem0xNyA4My4zaC0zNGwxNy00MC45IDE3IDQwLjl6IiAvPgogIDwvc3ZnPg==">
-    </div>
-    <h2>Here are some links to help you start: </h2>
-    <ul>
-      <li>
-        <h2><a target="_blank" rel="noopener" href="https://angular.io/tutorial">Tour of Heroes</a></h2>
-      </li>
-      <li>
-        <h2><a target="_blank" rel="noopener" href="https://angular.io/cli">CLI Documentation</a></h2>
-      </li>
-      <li>
-        <h2><a target="_blank" rel="noopener" href="https://blog.angular.io/">Angular blog</a></h2>
-      </li>
-    </ul>
-    <router-outlet></router-outlet>
-  `,
+  template: `<router-outlet/>`,
   styles: [],
 })
 export class AppComponent {
-  title = 'genericoweb';
+  constructor(
+    @Inject(DOCUMENT) private document: Document,
+    private sts:SwithThemeService,
+    private ref:ApplicationRef
+  ){
+    const themeInStorage = localStorage.getItem('theme');
+    if(!themeInStorage){
+      sts.theme.set('device-theme');
+    }else{
+      sts.theme.set(themeInStorage);
+    }
+
+    effect(()=>{
+      const theme = sts.theme();
+      if(theme == 'device-theme'||!theme){
+        const isLightOn = matchMedia('(prefers-color-scheme:light)').matches;
+        this.setDeviceTheme(isLightOn);
+        matchMedia('(prefers-color-scheme:light)').addEventListener('change',(e)=>{
+          this.setDeviceTheme(e.matches);
+          ref.tick;
+        })
+      }else if(theme == 'light-theme'){
+        this.document.body.classList.add('light-theme');
+        localStorage.setItem('theme','light-theme');
+      }else{
+        this.document.body.classList.remove('light-theme');
+        localStorage.setItem('theme','dark-theme');
+      }
+    })
+  }
+
+  setDeviceTheme(isLightOn:boolean){
+    if(isLightOn){
+      this.document.body.classList.add('light-theme');
+      localStorage.setItem('theme','light-theme');
+    }else{
+      this.document.body.classList.remove('light-theme');
+      localStorage.setItem('theme','dark-theme');
+    }
+  }
 }
